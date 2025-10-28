@@ -1,0 +1,5 @@
+{
+    "prisma.prismaFmtBinPath": "",
+    "prisma.schemaPath": "./prisma/schema.prisma",
+    "prisma.envFile": "./.env"
+}
