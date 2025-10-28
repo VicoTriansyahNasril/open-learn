@@ -1,6 +1,7 @@
-import { readBody, createError } from 'h3'
+import { readBody, createError, useSession } from 'h3'
 import bcrypt from 'bcrypt'
 import db from '~/server/utils/db'
+import { useRuntimeConfig } from '#imports'
 
 export default defineEventHandler(async (event) => {
     const config = useRuntimeConfig(event)
@@ -25,6 +26,8 @@ export default defineEventHandler(async (event) => {
         name: user.name,
         email: user.email,
         role: user.role,
+        xp: user.xp,
+        level: user.level,
     }
 
     const session = await useSession(event, { password: config.sessionPassword })

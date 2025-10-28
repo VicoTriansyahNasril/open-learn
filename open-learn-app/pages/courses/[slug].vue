@@ -1,10 +1,24 @@
 <script setup lang="ts">
-const route = useRoute();
-const slug = Array.isArray(route.params.slug) ? route.params.slug[0] : route.params.slug;
+import type { CourseDetailApiResponse } from '~/types';
 
-const { data: course, pending, error } = await useAsyncData(
-    `course-${slug}`,
-    () => $fetch(`/api/courses/slug/${slug}`)
+const route = useRoute();
+
+const slug = computed(() => {
+    const param = route.params.slug;
+    return Array.isArray(param) ? param[0] : param;
+});
+
+const { data: course, pending, error } = await useAsyncData<CourseDetailApiResponse>(
+    `course-${slug.value}`,
+    () => {
+        if (!slug.value) {
+            return Promise.resolve(null);
+        }
+        return $fetch(`/api/courses/slug/${slug.value}`);
+    },
+    {
+        watch: [slug]
+    }
 );
 
 if (error.value) {
@@ -58,10 +72,10 @@ useSeoMeta({
                                 </summary>
                                 <ul class="p-4 bg-white rounded-b-lg">
                                     <li v-for="lesson in module.lessons" :key="lesson.id"
-                                        class="flex items-center justify-between py-2 border-b last:border-b-0">
+                                        class="flex items-center justify-between py-3 border-b last:border-b-0">
                                         <span class="text-gray-700">{{ lesson.order }}. {{ lesson.title }}</span>
                                         <NuxtLink :to="`/learn/lesson/${lesson.id}`"
-                                            class="text-indigo-600 hover:underline text-sm font-semibold">
+                                            class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md hover:bg-indigo-700">
                                             Mulai
                                         </NuxtLink>
                                     </li>

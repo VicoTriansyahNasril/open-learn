@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { LessonApiResponse, ProgressResponse, Badge } from '~/types';
+
 definePageMeta({
     layout: false,
 });
@@ -6,16 +8,21 @@ definePageMeta({
 const route = useRoute();
 const lessonId = computed(() => {
     const param = route.params.id;
-    return Array.isArray(param) ? param : param;
+    return Array.isArray(param) ? param[0] : param;
 });
 
-const { data, pending, error, refresh } = await useAsyncData(
-    'lessonData',
+const asyncDataKey = computed(() => `lesson-data-${lessonId.value}`);
+
+const { data, pending, error, refresh } = await useAsyncData<LessonApiResponse | null>(
+    asyncDataKey.value,
     () => {
-        if (!lessonId.value) return Promise.resolve(null);
+        if (!lessonId.value) {
+            return Promise.resolve(null);
+        }
         return $fetch(`/api/lessons/${lessonId.value}`);
     },
-    { watch: [lessonId] }
+    {
+    }
 );
 
 const lesson = computed(() => data.value?.lesson);
@@ -27,10 +34,16 @@ async function markAsComplete() {
     if (!lessonId.value) return;
     isCompleting.value = true;
     try {
-        await $fetch('/api/progress', {
+        const response = await $fetch<ProgressResponse>('/api/progress', {
             method: 'POST',
             body: { lessonId: lessonId.value }
         });
+
+        if (response.awardedBadges && response.awardedBadges.length > 0) {
+            const badgeNames = response.awardedBadges.map((b: Badge) => b.name).join(', ');
+            alert(`Selamat! Anda mendapatkan badge baru: ${badgeNames}`);
+        }
+
         await refresh();
     } catch (err) {
         console.error("Gagal menandai selesai", err);

@@ -22,6 +22,7 @@ model User {
   xp        Int      @default(0)
   level     Int      @default(1)
   progress  LessonProgress[]
+  badges    UserBadge[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -76,4 +77,89 @@ model LessonProgress {
   lesson      Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
   completedAt DateTime @default(now())
   @@unique([userId, lessonId])
+}
+
+model Badge {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String
+  icon        String
+
+  users       UserBadge[]
+
+  createdAt DateTime @default(now())
+}
+
+model UserBadge {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  badgeId     String
+  badge       Badge    @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+  
+  earnedAt    DateTime @default(now())
+
+  @@unique([userId, badgeId])
+}
+
+enum QuestionType {
+  MULTIPLE_CHOICE
+  TRUE_FALSE
+  SHORT_ANSWER
+}
+
+model Question {
+  id          String       @id @default(cuid())
+  text        String       @db.Text
+  type        QuestionType
+  difficulty  String       @default("medium")
+
+  options     Option[]
+  quizItems   QuizItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Option {
+  id         String   @id @default(cuid())
+  text       String
+  isCorrect  Boolean  @default(false)
+
+  questionId String
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+}
+
+enum QuizMode {
+  ASSIGNED
+  LIVE
+}
+
+model Quiz {
+  id          String    @id @default(cuid())
+  title       String
+  mode        QuizMode
+  timeLimit   Int?
+  
+  items       QuizItem[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model QuizItem {
+  id          String   @id @default(cuid())
+  
+  quizId      String
+  quiz        Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
+
+  questionId  String
+  question    Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  order       Int      // Urutan soal dalam kuis
+
+  @@unique([quizId, questionId])
+  @@unique([quizId, order])
 }
