@@ -19,7 +19,8 @@ model User {
   email     String   @unique
   password  String
   role      UserRole @default(STUDENT)
-
+  xp        Int      @default(0)
+  level     Int      @default(1)
   progress  LessonProgress[]
 
   createdAt DateTime @default(now())

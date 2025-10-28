@@ -3,11 +3,14 @@ import { useAuthStore } from '~/stores/auth'
 export default defineNuxtRouteMiddleware((to, from) => {
     const authStore = useAuthStore()
 
-    const protectedRoutes = ['/me', '/learn']
+    if (to.path.startsWith('/learn') && authStore.user?.role !== 'STUDENT') {
+        return abortNavigation({
+            statusCode: 403,
+            statusMessage: 'Forbidden: Hanya siswa yang dapat mengakses halaman ini.',
+        })
+    }
 
-    const isProtectedRoute = protectedRoutes.some(route => to.path.startsWith(route))
-
-    if (isProtectedRoute && !authStore.isLoggedIn) {
+    if (to.path.startsWith('/me') && !authStore.isLoggedIn) {
         return navigateTo('/login')
     }
 

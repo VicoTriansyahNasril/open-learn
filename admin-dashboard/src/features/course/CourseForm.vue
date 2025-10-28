@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch, onMounted } from 'vue'
+import { ref, watch } from 'vue'
 import api from '@/shared/api'
 
 interface CourseData {
@@ -13,7 +13,7 @@ interface CourseData {
 }
 
 const props = defineProps<{
-    initialData?: CourseData;
+    initialData?: CourseData | null;
 }>()
 
 const emit = defineEmits(['success', 'cancel'])
@@ -29,25 +29,31 @@ const form = ref<Omit<CourseData, 'id'>>({
 
 const isLoading = ref(false)
 const errorMessage = ref('')
-const isSlugManuallyChanged = ref(false)
+const isSlugManuallyChanged = ref<boolean>(false)
 
 function generateSlug(text: string): string {
     return text
         .toLowerCase()
+        .trim()
         .replace(/[^a-z0-9 -]/g, '')
         .replace(/\s+/g, '-')
         .replace(/-+/g, '-')
 }
 
-watch(() => form.value.title, (newTitle) => {
-    if (!isSlugManuallyChanged) {
-        form.value.slug = generateSlug(newTitle)
+watch(() => props.initialData, (newData) => {
+    if (newData) {
+        form.value = { ...newData }
+        isSlugManuallyChanged.value = !!newData.slug;
+    } else {
+        form.value = { title: '', slug: '', description: '', level: 'beginner', category: '', imageUrl: '' }
+        isSlugManuallyChanged.value = false;
     }
-})
+}, { immediate: true });
 
-onMounted(() => {
-    if (props.initialData) {
-        form.value = { ...props.initialData }
+watch(() => form.value.title, (newTitle, oldTitle) => {
+    const oldTitleSlug = generateSlug(oldTitle || '')
+    if (!isSlugManuallyChanged.value && (!form.value.slug || form.value.slug === oldTitleSlug)) {
+        form.value.slug = generateSlug(newTitle)
     }
 })
 
@@ -63,10 +69,8 @@ async function handleSubmit() {
     try {
         let response;
         if (props.initialData?.id) {
-            // Mode Update
             response = await api.put(`/courses/${props.initialData.id}`, form.value)
         } else {
-            // Mode Create
             response = await api.post('/courses', form.value)
         }
         emit('success', response.data.course)

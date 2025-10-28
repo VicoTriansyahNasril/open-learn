@@ -24,6 +24,10 @@ const uiStore = useUiStore()
                 <span class="text-2xl">📚</span>
                 <span class="ml-4 font-medium" v-show="uiStore.isSidebarOpen">Kursus</span>
             </RouterLink>
+            <RouterLink to="/users" class="flex items-center p-2 rounded-lg hover:bg-gray-700">
+                <span class="text-2xl">👥</span>
+                <span class="ml-4 font-medium" v-show="uiStore.isSidebarOpen">Pengguna</span>
+            </RouterLink>
         </nav>
     </aside>
 </template>
