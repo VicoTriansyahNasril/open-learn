@@ -19,9 +19,11 @@ const { data, pending, error, refresh } = await useAsyncData<LessonApiResponse |
         if (!lessonId.value) {
             return Promise.resolve(null);
         }
-        return $fetch(`/api/lessons/${lessonId.value}`);
+        const apiUrl = `/api/lessons/${lessonId.value}`;
+        return $fetch(apiUrl);
     },
     {
+        watch: [lessonId]
     }
 );
 
@@ -32,25 +34,30 @@ const isCompleting = ref(false);
 
 async function markAsComplete() {
     if (!lessonId.value) return;
+
     isCompleting.value = true;
-    try {
-        const response = await $fetch<ProgressResponse>('/api/progress', {
-            method: 'POST',
-            body: { lessonId: lessonId.value }
-        });
 
-        if (response.awardedBadges && response.awardedBadges.length > 0) {
-            const badgeNames = response.awardedBadges.map((b: Badge) => b.name).join(', ');
-            alert(`Selamat! Anda mendapatkan badge baru: ${badgeNames}`);
-        }
+    const apiUrl = '/api/progress';
+    const { data: response, error: completeError } = await useFetch<ProgressResponse>(apiUrl, {
+        method: 'POST',
+        body: { lessonId: lessonId.value },
+        key: `complete-lesson-${lessonId.value}-${Date.now()}`,
+    });
 
-        await refresh();
-    } catch (err) {
-        console.error("Gagal menandai selesai", err);
+    isCompleting.value = false;
+
+    if (completeError.value) {
+        console.error("Gagal menandai selesai", completeError.value);
         alert('Gagal menyimpan progres.');
-    } finally {
-        isCompleting.value = false;
+        return;
     }
+
+    if (response.value?.awardedBadges && response.value.awardedBadges.length > 0) {
+        const badgeNames = response.value.awardedBadges.map((b: Badge) => b.name).join(', ');
+        alert(`Selamat! Anda mendapatkan badge baru: ${badgeNames}`);
+    }
+
+    await refresh();
 }
 
 useSeoMeta({

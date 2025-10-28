@@ -2,6 +2,7 @@ import { readBody, createError, useSession } from 'h3'
 import bcrypt from 'bcrypt'
 import db from '~/server/utils/db'
 import { useRuntimeConfig } from '#imports'
+import { createCsrfTokenAndSetCookie } from '~/server/utils/csrf'
 
 export default defineEventHandler(async (event) => {
     const config = useRuntimeConfig(event)
@@ -32,6 +33,8 @@ export default defineEventHandler(async (event) => {
 
     const session = await useSession(event, { password: config.sessionPassword })
     await session.update({ user: userSessionData })
+
+    createCsrfTokenAndSetCookie(event)
 
     return userSessionData
 })
