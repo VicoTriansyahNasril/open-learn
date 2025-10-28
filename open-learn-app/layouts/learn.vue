@@ -3,7 +3,7 @@ interface LessonInfo {
     id: string;
     title: string;
     order: number;
-    progress: any[]; // Progres bisa berupa array (jika selesai) atau array kosong
+    progress: any[];
 }
 interface ModuleInfo {
     id: string;

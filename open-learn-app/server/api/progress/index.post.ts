@@ -1,10 +1,13 @@
 import { readBody } from 'h3'
 import db from '~/server/utils/db'
+import { requireUserSession } from '~/server/utils/session'
 
 export default defineEventHandler(async (event) => {
+    const user = await requireUserSession(event)
+
     try {
         const { lessonId } = await readBody(event)
-        const userId = 'user_dummy_123'
+        const userId = user.id
 
         if (!lessonId) {
             throw createError({ statusCode: 400, statusMessage: 'ID Pelajaran dibutuhkan.' })

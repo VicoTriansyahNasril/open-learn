@@ -12,6 +12,7 @@ export default defineNuxtConfig({
   compatibilityDate: '2024-04-03',
 
   runtimeConfig: {
+    sessionPassword: process.env.NUXT_SESSION_PASSWORD,
     public: {
       apiBaseUrl: process.env.NUXT_PUBLIC_API_BASE_URL || '/api'
     }
