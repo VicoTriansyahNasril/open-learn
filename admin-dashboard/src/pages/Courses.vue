@@ -3,6 +3,7 @@ import { ref, onMounted } from 'vue'
 import api from '@/shared/api'
 import BaseModal from '@/shared/ui/BaseModal.vue'
 import CourseForm from '@/features/course/CourseForm.vue'
+import notifier from '@/shared/utils/notifier'
 
 interface Course {
     id: string;
@@ -45,26 +46,32 @@ function openEditModal(course: Course) {
 }
 
 function handleSuccess(updatedOrNewCourse: Course) {
-    if (editingCourse.value) {
-        // Mode Edit
+    const isEditing = !!editingCourse.value
+    if (isEditing) {
         const index = courses.value.findIndex(c => c.id === updatedOrNewCourse.id)
         if (index !== -1) {
             courses.value[index] = updatedOrNewCourse
         }
     } else {
-        // Mode Create
         courses.value.push(updatedOrNewCourse)
     }
     isModalOpen.value = false
+    notifier.success(isEditing ? 'Kursus berhasil diperbarui!' : 'Kursus berhasil dibuat!')
 }
 
 async function deleteCourse(course: Course) {
-    if (window.confirm(`Apakah Anda yakin ingin menghapus kursus "${course.title}"?`)) {
+    const result = await notifier.confirm(
+        'Hapus Kursus?',
+        `Apakah Anda yakin ingin menghapus kursus "${course.title}"? Aksi ini tidak dapat dibatalkan.`
+    )
+    
+    if (result.isConfirmed) {
         try {
             await api.delete(`/courses/${course.id}`)
             courses.value = courses.value.filter(c => c.id !== course.id)
+            notifier.success('Kursus berhasil dihapus.')
         } catch (err) {
-            alert('Gagal menghapus kursus.')
+            notifier.error('Gagal menghapus kursus.')
         }
     }
 }

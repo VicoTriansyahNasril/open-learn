@@ -1,7 +1,7 @@
 import { createCsrfTokenAndSetCookie, verifyCsrfToken } from '~/server/utils/csrf'
 
 const PROTECTED_METHODS = ['POST', 'PUT', 'DELETE', 'PATCH']
-const EXEMPTED_PATHS = ['/api/auth/login', '/api/auth/register']
+const EXEMPTED_PATHS = ['/api/auth/login', '/api/auth/register', '/api/auth/logout']
 
 export default defineEventHandler(async (event) => {
     const isSessionAvailable = !!event.context.sessions

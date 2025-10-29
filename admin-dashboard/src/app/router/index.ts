@@ -1,4 +1,3 @@
-// FILE: Open-Learn/admin-dashboard/src/app/router/index.ts
 import { createRouter, createWebHistory } from 'vue-router'
 import AdminLayout from '@/app/layouts/AdminLayout.vue'
 import Dashboard from '@/pages/Dashboard.vue'
@@ -6,6 +5,7 @@ import Courses from '@/pages/Courses.vue'
 import CourseDetail from '@/pages/CourseDetail.vue'
 import Users from '@/pages/Users.vue'
 import Questions from '@/pages/Questions.vue'
+import Quizzes from '@/pages/Quizzes.vue'
 import Login from '@/pages/Login.vue'
 import api from '@/shared/api'
 
@@ -25,7 +25,8 @@ const routes = [
       { path: 'courses', name: 'Courses', component: Courses },
       { path: 'courses/:id', name: 'CourseDetail', component: CourseDetail },
       { path: 'users', name: 'Users', component: Users },
-      { path: 'questions', name: 'Questions', component: Questions }
+      { path: 'questions', name: 'Questions', component: Questions },
+      { path: 'quizzes', name: 'Quizzes', component: Quizzes },
     ],
   },
 ]

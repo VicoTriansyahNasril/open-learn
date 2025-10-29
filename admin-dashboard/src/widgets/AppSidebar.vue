@@ -2,6 +2,7 @@
 import { useRouter } from 'vue-router'
 import { useUiStore } from '@/shared/store/ui'
 import api from '@/shared/api'
+import notifier from '@/shared/utils/notifier'
 
 const uiStore = useUiStore()
 const router = useRouter()
@@ -12,7 +13,7 @@ async function handleLogout() {
         await router.push('/login')
     } catch (error) {
         console.error('Logout failed:', error)
-        alert('Gagal untuk logout. Silakan coba lagi.')
+        notifier.error('Gagal untuk logout. Silakan coba lagi.')
     }
 }
 </script>
@@ -44,6 +45,10 @@ async function handleLogout() {
             <RouterLink to="/questions" class="flex items-center p-2 rounded-lg hover:bg-gray-700">
                 <span class="text-2xl">❓</span>
                 <span class="ml-4 font-medium" v-show="uiStore.isSidebarOpen">Bank Soal</span>
+            </RouterLink>
+            <RouterLink to="/quizzes" class="flex items-center p-2 rounded-lg hover:bg-gray-700">
+                <span class="text-2xl">📝</span>
+                <span class="ml-4 font-medium" v-show="uiStore.isSidebarOpen">Kuis</span>
             </RouterLink>
         </nav>
         <div class="px-2 py-4 mt-auto border-t border-gray-700">
